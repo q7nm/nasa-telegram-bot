@@ -44,17 +44,26 @@ public class ApodCommandHandler implements UpdateHandler {
     }
 
     private void sendApod(Long chatId, ApodDTO apod) throws TelegramApiException {
+        String fullText = apod.title() + "\n\n" +
+                apod.explanation() +
+                (apod.copyright() != null ? "\n\n© " + apod.copyright() : "");
+
         if ("image".equalsIgnoreCase(apod.mediaType())) {
             telegramClient.execute(SendPhoto.builder()
                     .chatId(chatId)
                     .photo(new InputFile(apod.url()))
-                    .caption(apod.title() + "\n\n" + apod.explanation() + "\n\n" + apod.copyright())
+                    .caption(apod.title())
                     .build());
+
+            telegramClient.execute(SendMessage.builder()
+                    .chatId(chatId)
+                    .text(fullText)
+                    .build());
+
         } else {
             telegramClient.execute(SendMessage.builder()
                     .chatId(chatId)
-                    .text(apod.title() + "\n\n" + apod.explanation() + "\n\n" + apod.copyright()
-                            + "\n\n" + apod.url())
+                    .text(fullText + "\n\n" + apod.url())
                     .build());
         }
     }
