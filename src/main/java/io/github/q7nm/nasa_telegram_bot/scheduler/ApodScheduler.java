@@ -3,7 +3,7 @@ package io.github.q7nm.nasa_telegram_bot.scheduler;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -20,11 +20,11 @@ public class ApodScheduler {
     private final UserRepository userRepository;
     private final NasaService nasaService;
     private final ApodCommandHandler apodCommandHandler;
-    private final CaffeineCacheManager cacheManager;
+    private final CacheManager cacheManager;
 
     @Autowired
     public ApodScheduler(UserRepository userRepository, NasaService nasaService, ApodCommandHandler apodCommandHandler,
-            CaffeineCacheManager cacheManager) {
+            CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.nasaService = nasaService;
         this.apodCommandHandler = apodCommandHandler;
@@ -34,7 +34,8 @@ public class ApodScheduler {
     @Scheduled(cron = "0 0 6 * * *", zone = "UTC")
     public void sendDailyApod() {
         if (cacheManager.getCache("apod") != null) {
-            cacheManager.removeCache("apod");
+            cacheManager.getCache("apod").clear();
+            ;
         }
 
         ApodDTO apod = nasaService.getApod();
