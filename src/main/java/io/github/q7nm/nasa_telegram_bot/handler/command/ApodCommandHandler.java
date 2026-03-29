@@ -43,7 +43,7 @@ public class ApodCommandHandler implements UpdateHandler {
         }
     }
 
-    private void sendApod(Long chatId, ApodDTO apod) throws TelegramApiException {
+    public void sendApod(Long chatId, ApodDTO apod) throws TelegramApiException {
         String fullText = apod.title() + "\n\n" +
                 apod.explanation() +
                 (apod.copyright() != null ? "\n\n© " + apod.copyright() : "");
