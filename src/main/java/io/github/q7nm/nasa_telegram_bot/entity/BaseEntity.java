@@ -1,6 +1,7 @@
 package io.github.q7nm.nasa_telegram_bot.entity;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -17,17 +18,17 @@ public class BaseEntity {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
 }
