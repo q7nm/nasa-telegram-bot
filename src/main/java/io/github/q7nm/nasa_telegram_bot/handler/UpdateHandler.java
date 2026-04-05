@@ -7,5 +7,4 @@ public interface UpdateHandler {
     public boolean supports(Update update);
 
     public void handle(Update update);
-
 }

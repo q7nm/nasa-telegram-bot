@@ -35,7 +35,6 @@ public class ApodScheduler {
     public void sendDailyApod() {
         if (cacheManager.getCache("apod") != null) {
             cacheManager.getCache("apod").clear();
-            ;
         }
 
         ApodDTO apod = nasaService.getApod();
