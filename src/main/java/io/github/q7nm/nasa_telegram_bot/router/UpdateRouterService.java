@@ -20,6 +20,7 @@ public class UpdateRouterService {
         for(UpdateHandler handler : handlers) {
             if (handler.supports(update)) {
                 handler.handle(update);
+                break;
             }
         }
     }
