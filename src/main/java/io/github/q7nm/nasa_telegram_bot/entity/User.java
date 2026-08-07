@@ -28,4 +28,7 @@ public class User extends BaseEntity {
 
     @Column(name = "subscribed_to_apod", nullable = false)
     private boolean subscribedToApod;
+
+    @Column(name = "subscribed_to_neo", nullable = false)
+    private boolean subscribedToNeo;
 }
