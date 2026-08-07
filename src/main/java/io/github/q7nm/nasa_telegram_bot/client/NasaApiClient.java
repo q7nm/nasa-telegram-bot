@@ -19,12 +19,12 @@ public class NasaApiClient {
 
     @Autowired
     public NasaApiClient(@Value("${nasa.api.key}") String apiKey, WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://api.nasa.gov/planetary").build();
+        this.webClient = webClientBuilder.baseUrl("https://api.nasa.gov").build();
         this.apiKey = apiKey;
     }
 
     public Mono<ApodDTO> getApod() {
-        return webClient.get().uri(uriBuilder -> uriBuilder.path("/apod").queryParam("api_key", apiKey).build())
+        return webClient.get().uri(uriBuilder -> uriBuilder.path("/planetary/apod").queryParam("api_key", apiKey).build())
                 .retrieve().bodyToMono(ApodDTO.class);
     }
 
