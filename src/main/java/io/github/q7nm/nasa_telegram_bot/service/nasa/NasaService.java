@@ -25,6 +25,7 @@ public class NasaService {
         return nasaApiClient.getApod().block();
     }
 
+    @Cacheable("neo")
     public NasaNeoFeedDTO getNeoFeed(LocalDate startDate, LocalDate endDate) {
         return nasaApiClient.getNeoFeed(startDate, endDate).block();
     }
