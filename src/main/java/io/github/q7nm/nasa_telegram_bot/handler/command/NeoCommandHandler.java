@@ -50,7 +50,7 @@ public class NeoCommandHandler implements UpdateHandler {
     public void sendNeo(Long chatId, NasaNeoFeedDTO neo) throws TelegramApiException {
         StringBuilder message = new StringBuilder();
 
-        message.append("☄️ Near Earth Objects\n\n");
+        message.append("Near Earth Objects\n\n");
         message.append("Total objects: ")
                 .append(neo.elementCount())
                 .append("\n\n");
