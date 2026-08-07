@@ -63,19 +63,25 @@ public class NeoCommandHandler implements UpdateHandler {
                 .limit(5)
                 .toList();
 
-        message.append("⚠️ Hazardous asteroids:\n");
+        message.append("⚠️ Hazardous asteroids:\n\n");
 
         if (hazardousAsteroids.isEmpty()) {
-            message.append("Hazardous not found\n");
+            message.append("Hazardous not found");
         } else {
             hazardousAsteroids.forEach(asteroid -> {
                 message.append("🌑 ")
                         .append(asteroid.name())
                         .append("\n");
-                        
+
                 message.append("🔗 Info: ")
                         .append(asteroid.nasaJplUrl())
                         .append("\n");
+
+                message.append("📏 Diameter: ")
+                        .append(String.format("%.2f", asteroid.estimatedDiameter().meters().min()))
+                        .append(" - ")
+                        .append(String.format("%.2f", asteroid.estimatedDiameter().meters().max()))
+                        .append(" m\n");
 
                 if (!asteroid.closeApproachData().isEmpty()) {
                     CloseApproachDTO approach = asteroid.closeApproachData().get(0);
@@ -84,12 +90,22 @@ public class NeoCommandHandler implements UpdateHandler {
                             .append(approach.closeApproachDate())
                             .append("\n");
 
+                    message.append("🕒 Date & time: ")
+                            .append(approach.closeApproachDateFull())
+                            .append("\n");
+
+                    message.append("🌍 Orbiting: ")
+                            .append(approach.orbitingBody())
+                            .append("\n");
+
                     message.append("🌍 Distance: ")
-                            .append(approach.missDistance().kilometers())
-                            .append(" km\n");
+                            .append(String.format("%.2f", approach.missDistance().kilometers()))
+                            .append(" km (")
+                            .append(String.format("%.2f", approach.missDistance().lunar()))
+                            .append(" LD)\n");
 
                     message.append("🚀 Velocity: ")
-                            .append(approach.relativeVelocity().kilometersPerHour())
+                            .append(String.format("%.2f", approach.relativeVelocity().kilometersPerHour()))
                             .append(" km/h\n\n");
                 }
             });
