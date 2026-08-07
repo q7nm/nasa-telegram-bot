@@ -1,5 +1,6 @@
 package io.github.q7nm.nasa_telegram_bot.client;
 
+import java.time.Duration;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import io.github.q7nm.nasa_telegram_bot.entity.dto.ApodDTO;
 import io.github.q7nm.nasa_telegram_bot.entity.dto.neo.NasaNeoFeedDTO;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Component
 public class NasaApiClient {
@@ -24,15 +26,16 @@ public class NasaApiClient {
     }
 
     public Mono<ApodDTO> getApod() {
-        return webClient.get().uri(uriBuilder -> uriBuilder.path("/planetary/apod").queryParam("api_key", apiKey).build())
-                .retrieve().bodyToMono(ApodDTO.class);
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/planetary/apod").queryParam("api_key", apiKey).build())
+                .retrieve().bodyToMono(ApodDTO.class).retryWhen(Retry.backoff(10, Duration.ofSeconds(5)));
     }
 
     public Mono<NasaNeoFeedDTO> getNeoFeed(LocalDate startDate, LocalDate endDate) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/neo/rest/v1/feed").queryParam("start_date", startDate)
                         .queryParam("end_date", endDate).queryParam("api_key", apiKey).build())
-                .retrieve().bodyToMono(NasaNeoFeedDTO.class);
+                .retrieve().bodyToMono(NasaNeoFeedDTO.class).retryWhen(Retry.backoff(10, Duration.ofSeconds(5)));
     }
 
 }
