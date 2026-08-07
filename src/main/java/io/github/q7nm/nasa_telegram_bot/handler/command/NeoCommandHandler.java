@@ -1,6 +1,7 @@
 package io.github.q7nm.nasa_telegram_bot.handler.command;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,102 +20,110 @@ import io.github.q7nm.nasa_telegram_bot.service.nasa.NasaService;
 @Component
 public class NeoCommandHandler implements UpdateHandler {
 
-    private final TelegramClient telegramClient;
-    private final NasaService nasaService;
+        private final TelegramClient telegramClient;
+        private final NasaService nasaService;
 
-    @Autowired
-    public NeoCommandHandler(TelegramClient telegramClient, NasaService nasaService) {
-        this.telegramClient = telegramClient;
-        this.nasaService = nasaService;
-    }
-
-    @Override
-    public boolean supports(Update update) {
-        return update != null && update.hasMessage() && update.getMessage().hasText()
-                && update.getMessage().getText().trim().equalsIgnoreCase("/neo");
-    }
-
-    @Override
-    public void handle(Update update) {
-        Long chatId = update.getMessage().getChatId();
-
-        NasaNeoFeedDTO neo = nasaService.getNeoFeed(LocalDate.now(), LocalDate.now().plusDays(1));
-
-        try {
-            sendNeo(chatId, neo);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+        @Autowired
+        public NeoCommandHandler(TelegramClient telegramClient, NasaService nasaService) {
+                this.telegramClient = telegramClient;
+                this.nasaService = nasaService;
         }
-    }
 
-    public void sendNeo(Long chatId, NasaNeoFeedDTO neo) throws TelegramApiException {
-        StringBuilder message = new StringBuilder();
+        @Override
+        public boolean supports(Update update) {
+                return update != null && update.hasMessage() && update.getMessage().hasText()
+                                && update.getMessage().getText().trim().equalsIgnoreCase("/neo");
+        }
 
-        message.append("Near Earth Objects\n\n");
-        message.append("Total objects: ")
-                .append(neo.elementCount())
-                .append("\n\n");
+        @Override
+        public void handle(Update update) {
+                Long chatId = update.getMessage().getChatId();
 
-        List<AsteroidDTO> hazardousAsteroids = neo.nearEarthObjects()
-                .values()
-                .stream()
-                .flatMap(List::stream)
-                .filter(AsteroidDTO::potentiallyHazardous)
-                .limit(5)
-                .toList();
+                LocalDate today = LocalDate.now(ZoneOffset.UTC);
+                LocalDate startDate = today.minusDays(1);
 
-        message.append("⚠️ Hazardous asteroids:\n\n");
+                NasaNeoFeedDTO neo = nasaService.getNeoFeed(startDate, today);
 
-        if (hazardousAsteroids.isEmpty()) {
-            message.append("Hazardous not found");
-        } else {
-            hazardousAsteroids.forEach(asteroid -> {
-                message.append("🌑 ")
-                        .append(asteroid.name())
-                        .append("\n");
-
-                message.append("🔗 Info: ")
-                        .append(asteroid.nasaJplUrl())
-                        .append("\n");
-
-                message.append("📏 Diameter: ")
-                        .append(String.format("%.2f", asteroid.estimatedDiameter().meters().min()))
-                        .append(" - ")
-                        .append(String.format("%.2f", asteroid.estimatedDiameter().meters().max()))
-                        .append(" m\n");
-
-                if (!asteroid.closeApproachData().isEmpty()) {
-                    CloseApproachDTO approach = asteroid.closeApproachData().get(0);
-
-                    message.append("📅 Date: ")
-                            .append(approach.closeApproachDate())
-                            .append("\n");
-
-                    message.append("🕒 Date & time: ")
-                            .append(approach.closeApproachDateFull())
-                            .append("\n");
-
-                    message.append("🌍 Orbiting: ")
-                            .append(approach.orbitingBody())
-                            .append("\n");
-
-                    message.append("🌍 Distance: ")
-                            .append(String.format("%.2f", approach.missDistance().kilometers()))
-                            .append(" km (")
-                            .append(String.format("%.2f", approach.missDistance().lunar()))
-                            .append(" LD)\n");
-
-                    message.append("🚀 Velocity: ")
-                            .append(String.format("%.2f", approach.relativeVelocity().kilometersPerHour()))
-                            .append(" km/h\n\n");
+                try {
+                        sendNeo(chatId, neo);
+                } catch (TelegramApiException e) {
+                        e.printStackTrace();
                 }
-            });
         }
 
-        telegramClient.execute(
-                SendMessage.builder()
-                        .chatId(chatId)
-                        .text(message.toString())
-                        .build());
-    }
+        public void sendNeo(Long chatId, NasaNeoFeedDTO neo) throws TelegramApiException {
+                StringBuilder message = new StringBuilder();
+
+                message.append("Near Earth Objects\n\n");
+                message.append("Total objects: ")
+                                .append(neo.elementCount())
+                                .append("\n\n");
+
+                List<AsteroidDTO> hazardousAsteroids = neo.nearEarthObjects()
+                                .values()
+                                .stream()
+                                .flatMap(List::stream)
+                                .filter(AsteroidDTO::potentiallyHazardous)
+                                .limit(5)
+                                .toList();
+
+                message.append("⚠️ Hazardous asteroids:\n\n");
+
+                if (hazardousAsteroids.isEmpty()) {
+                        message.append("Hazardous not found");
+                } else {
+                        hazardousAsteroids.forEach(asteroid -> {
+                                message.append("🌑 ")
+                                                .append(asteroid.name())
+                                                .append("\n");
+
+                                message.append("🔗 Info: ")
+                                                .append(asteroid.nasaJplUrl())
+                                                .append("\n");
+
+                                message.append("📏 Diameter: ")
+                                                .append(String.format("%.2f",
+                                                                asteroid.estimatedDiameter().meters().min()))
+                                                .append(" - ")
+                                                .append(String.format("%.2f",
+                                                                asteroid.estimatedDiameter().meters().max()))
+                                                .append(" m\n");
+
+                                if (!asteroid.closeApproachData().isEmpty()) {
+                                        CloseApproachDTO approach = asteroid.closeApproachData().get(0);
+
+                                        message.append("📅 Date: ")
+                                                        .append(approach.closeApproachDate())
+                                                        .append("\n");
+
+                                        message.append("🕒 Date & time: ")
+                                                        .append(approach.closeApproachDateFull())
+                                                        .append("\n");
+
+                                        message.append("🌍 Orbiting: ")
+                                                        .append(approach.orbitingBody())
+                                                        .append("\n");
+
+                                        message.append("🌍 Distance: ")
+                                                        .append(String.format("%.2f",
+                                                                        approach.missDistance().kilometers()))
+                                                        .append(" km (")
+                                                        .append(String.format("%.2f", approach.missDistance().lunar()))
+                                                        .append(" LD)\n");
+
+                                        message.append("🚀 Velocity: ")
+                                                        .append(String.format("%.2f",
+                                                                        approach.relativeVelocity()
+                                                                                        .kilometersPerHour()))
+                                                        .append(" km/h\n\n");
+                                }
+                        });
+                }
+
+                telegramClient.execute(
+                                SendMessage.builder()
+                                                .chatId(chatId)
+                                                .text(message.toString())
+                                                .build());
+        }
 }

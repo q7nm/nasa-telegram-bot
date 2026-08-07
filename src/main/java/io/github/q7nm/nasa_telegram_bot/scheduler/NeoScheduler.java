@@ -1,6 +1,7 @@
 package io.github.q7nm.nasa_telegram_bot.scheduler;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,10 @@ public class NeoScheduler {
 
     @Scheduled(cron = "0 0 8 * * *", zone = "UTC")
     public void sendDailyNeo() {
-        NasaNeoFeedDTO neo = nasaService.getNeoFeed(LocalDate.now(), LocalDate.now().plusDays(1));
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate startDate = today.minusDays(1);
+
+        NasaNeoFeedDTO neo = nasaService.getNeoFeed(startDate, today);
 
         List<User> users = userRepository.findAll();
         for (User user : users) {

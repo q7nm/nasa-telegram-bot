@@ -25,9 +25,10 @@ public class NasaApiClient {
         this.apiKey = apiKey;
     }
 
-    public Mono<ApodDTO> getApod() {
+    public Mono<ApodDTO> getApod(LocalDate date) {
         return webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/planetary/apod").queryParam("api_key", apiKey).build())
+                .uri(uriBuilder -> uriBuilder.path("/planetary/apod").queryParam("date", date)
+                        .queryParam("api_key", apiKey).build())
                 .retrieve().bodyToMono(ApodDTO.class).retryWhen(Retry.backoff(10, Duration.ofSeconds(5)));
     }
 

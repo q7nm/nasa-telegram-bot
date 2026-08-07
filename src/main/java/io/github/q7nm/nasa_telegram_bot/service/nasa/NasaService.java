@@ -21,8 +21,8 @@ public class NasaService {
     }
 
     @Cacheable("apod")
-    public ApodDTO getApod() {
-        return nasaApiClient.getApod().block();
+    public ApodDTO getApod(LocalDate date) {
+        return nasaApiClient.getApod(date).block();
     }
 
     @Cacheable("neo")

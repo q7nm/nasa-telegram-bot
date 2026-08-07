@@ -1,5 +1,8 @@
 package io.github.q7nm.nasa_telegram_bot.handler.command;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -34,7 +37,7 @@ public class ApodCommandHandler implements UpdateHandler {
     @Override
     public void handle(Update update) {
         Long chatId = update.getMessage().getChatId();
-        ApodDTO apod = nasaService.getApod();
+        ApodDTO apod = nasaService.getApod(LocalDate.now(ZoneOffset.UTC));
 
         try {
             sendApod(chatId, apod);
