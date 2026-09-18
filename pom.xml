@@ -29,7 +29,7 @@
 	</scm>
 	<properties>
 		<java.version>25</java.version>
-		<telegrambots.version>9.5.0</telegrambots.version>
+		<telegrambots.version>10.3.0</telegrambots.version>
 		<modelmapper.version>3.2.6</modelmapper.version>
 	</properties>
 	<dependencies>
